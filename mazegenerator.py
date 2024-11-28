@@ -2,7 +2,7 @@ import turtle
 import random
 from PIL import Image as im
 import numpy as np
-import dfs_pathfinder as dfs
+import pathfinder as pf
 
 class Individual:
     def __init__(self, maze):
@@ -82,16 +82,13 @@ def draw_path(path, x_start, y_start):
 
 mazes = []
 
-for i in range(1, 6):
+for i in range(1, 7):
     image = im.open(f'mazes/maze{i}.png')
     image = image.convert('L')
     data = np.asarray(image)
     threshold = 128
     maze = (data < threshold).astype(int)
     mazes.append(maze)
-
-# Find the path using DFS
-path = dfs.dfs(mazes[0], (1, 0), (19, 20))
 
 # Create the turtle window
 window = turtle.Screen()
@@ -111,12 +108,15 @@ path_square.speed(0)
 # Store maze walls for reference
 maze_walls = []
 
+# Find the path
+path = pf.bfs(mazes[5], (1, 0), (19, 20))
+
 # Draw the maze
-draw_maze(mazes[0])
+draw_maze(mazes[5])
 
 # Draw the DFS path in green
 if path:
-    draw_path(path, -mazes[0].shape[1] // 2 * 22, mazes[0].shape[0] // 2 * 22)
+    draw_path(path, -mazes[5].shape[1] // 2 * 22, mazes[5].shape[0] // 2 * 22)
 
 # Keep the window open
 while True:
