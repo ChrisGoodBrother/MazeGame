@@ -1,8 +1,4 @@
 import turtle
-import random
-from PIL import Image as im
-import numpy as np
-import pathfinder as pf
 
 class Individual:
     def __init__(self, maze):
@@ -48,14 +44,37 @@ class WhiteSquare(turtle.Turtle): #White square
         self.penup()
         self.speed(0)
 
+def get_maze_walls(maze):
+    maze_walls = []
+    height = len(maze)
+    width = len(maze[0])
+
+    x_start = -width // 2 * 22
+    y_start = height // 2 * 22
+
+    for y in range(height):
+        for x in range(width):
+            item = maze[y][x] #Get maze wall or pathway
+
+            posx = x_start + x * 22 #Get the position for x
+            posy = y_start - y * 22 #Get the position for y
+
+            if(item == 1):
+                maze_walls.append((posx, posy))
+    return maze_walls
+
 def draw_maze(maze):
+
+    white_squares = WhiteSquare()
+    black_squares = BlackSquare()
+
+    maze_walls = []
 
     height = len(maze)
     width = len(maze[0])
 
     x_start = -width // 2 * 22
     y_start = height // 2 * 22
-    #print(height, width)
 
     for y in range(height):
         for x in range(width):
@@ -72,52 +91,13 @@ def draw_maze(maze):
                 white_squares.goto(posx, posy)
                 white_squares.stamp()
 
-def draw_path(path, x_start, y_start):
-    # Draw the DFS path in green
-    for y, x in path:
-        posx = x_start + x * 22  # Calculate the position for x
-        posy = y_start - y * 22  # Calculate the position for y
-        path_square.goto(posx, posy)
-        path_square.stamp()
+def generate_maze(maze):
 
-mazes = []
+    window = turtle.Screen()
+    window.screensize(500, 500)
+    window.bgcolor("blue")
+    window.tracer(0)
 
-for i in range(1, 7):
-    image = im.open(f'mazes/maze{i}.png')
-    image = image.convert('L')
-    data = np.asarray(image)
-    threshold = 128
-    maze = (data < threshold).astype(int)
-    mazes.append(maze)
+    draw_maze(maze)
 
-# Create the turtle window
-window = turtle.Screen()
-window.screensize(500, 500)
-window.bgcolor("blue")
-window.tracer(0)
-
-# Initialize turtle objects for drawing
-white_squares = WhiteSquare()
-black_squares = BlackSquare()
-path_square = turtle.Turtle()  # Create a new turtle for the path
-path_square.shape("square")
-path_square.color("green")
-path_square.penup()
-path_square.speed(0)
-
-# Store maze walls for reference
-maze_walls = []
-
-# Find the path
-path = pf.bfs(mazes[5], (1, 0), (19, 20))
-
-# Draw the maze
-draw_maze(mazes[5])
-
-# Draw the DFS path in green
-if path:
-    draw_path(path, -mazes[5].shape[1] // 2 * 22, mazes[5].shape[0] // 2 * 22)
-
-# Keep the window open
-while True:
-    window.update()
+    return window

@@ -1,12 +1,14 @@
 from PIL import Image as im
 import numpy as np
 
-image1 = im.open('mazes/maze1.png')
-image1 = image1.convert('L')
+def convert_image_to_array(mazesAmount, mazes=[]):
 
-data = np.asarray(image1)
+    for i in range(1, mazesAmount):
+        image = im.open(f'mazes/maze{i}.png')
+        image = image.convert('L')
+        data = np.asarray(image)
+        threshold = 128
+        maze = (data < threshold).astype(int)
+        mazes.append(maze)
 
-threshold = 128
-binary_maze = (data < threshold).astype(int)
-
-print(binary_maze)
+    return mazes

@@ -5,7 +5,10 @@ def dfs(maze, s, e, path=[], visited=[]):
 
     path.append(s)
     visited.append(s)
-    
+
+    if s == e:
+        return path
+
     coordY, coordX = s
 
     for node in [(coordY+1, coordX), (coordY-1, coordX), (coordY, coordX+1), (coordY, coordX-1)]:
@@ -26,7 +29,6 @@ def bfs(maze, s, e):
     parent = {}
     queue = []
 
-    
     visited.append(s)
     parent[s] = None
     queue.append(s)
@@ -51,15 +53,3 @@ def bfs(maze, s, e):
                     parent[node] = poppedNode
 
     return None
-
-image = im.open(f'mazes/maze6.png')
-image = image.convert('L')
-data = np.asarray(image)
-threshold = 128
-maze = (data < threshold).astype(int)
-
-mazeStart = (1,0) #maze[1][0]
-mazeEnd = (19,20) #maze[19][20]
-
-path = bfs(maze, mazeStart, mazeEnd)
-print(path) 
