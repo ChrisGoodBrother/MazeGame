@@ -3,162 +3,97 @@ import random
 import pathfinder as pf
 import mazegenerator as mgen
 import imagetoarray as imtoar
+import Entity
 
-class Player(turtle.Turtle):
-    def __init__(self):
-        turtle.Turtle.__init__(self)
-        self.shape("circle")
-        self.color("green")
-        self.penup()
-        self.speed(0)
+class Game:
+    def __init__(self, maze, player=Entity.Player(), opponent=Entity.Opponent(), treasure=Entity.Treasure()):
+        self.maze = maze
+        self.player = player #Create Playable Player
+        self.opponent = opponent #Create Computer Opponent
+        self.treasure = treasure #Create Treasure Entity
+    
+    def getRandomPosition(self):
+        while True:
+            randX = random.randint(0, len(self.maze) - 1)
+            randY = random.randint(0, len(self.maze[0]) - 1)
 
-    def move_up(self):
-        x = self.xcor()
-        y = self.ycor() + 22
-        if (x, y) not in maze_walls:
-            self.goto(x, y)
-    def move_down(self):
-        x = self.xcor()
-        y = self.ycor() - 22
-        if (x, y) not in maze_walls:
-            self.goto(x, y)
-    def move_left(self):
-        x = self.xcor() - 22
-        y = self.ycor()
-        if (x, y) not in maze_walls:
-            self.goto(x, y)
-    def move_right(self):
-        x = self.xcor() + 22
-        y = self.ycor()
-        if (x, y) not in maze_walls:
-            self.goto(x, y)
+            if self.maze[randY][randX] == 0:
+                return randX, randY
 
-class PathSquare(turtle.Turtle): #Path square
-    def __init__(self):
-        turtle.Turtle.__init__(self)
-        self.shape("square")
-        self.color("green")
-        self.penup()
-        self.speed(0)
-
-class Opponent(turtle.Turtle):
-    def __init__(self):
-        turtle.Turtle.__init__(self)
-        self.shape("circle")
-        self.color("red")
-        self.penup()
-        self.speed(0)
-        self.win = -1
-
-class Treasure(turtle.Turtle):
-    def __init__(self):
-        turtle.Turtle.__init__(self)
-        self.shape("triangle")
-        self.color("yellow")
-        self.penup()
-        self.speed(0)
-
-def draw_path(path, maze_height, maze_width):
-
-    x_start = -maze_width // 2 * 22
-    y_start = maze_height // 2 * 22
-
-    for y, x in path:
-        posx = x_start + x * 22
-        posy = y_start - y * 22
-        path_squares.goto(posx, posy)
-        path_squares.stamp()
-
-def getRandomPosition(maze):
-    while True:
-        randX = random.randint(0, len(maze) - 1)
-        randY = random.randint(0, len(maze[0]) - 1)
-
-        if maze[randY][randX] == 0:
-            return randX, randY
-
-def placeEntity(maze, entity):
-    x, y = getRandomPosition(maze)
-    entity.x = x
-    entity.y = y
-    height = len(maze)
-    width = len(maze[0])
-    x_start = -width // 2 * 22
-    y_start = height // 2 * 22
-    screenx = x_start + entity.x  * 22
-    screeny = y_start - entity.y * 22
-    entity.goto(screenx, screeny)
-
-def moveOpponent(maze, computer, treasure):
-    path = pf.bfs(maze, (computer.x, computer.y), (treasure.x, treasure.y))
-
-def isOnTreasure(entity, treasX, treasY):
+    def placeEntity(self, entity):
+        x, y = self.getRandomPosition()
+        entity.x = x
+        entity.y = y
+        height = len(self.maze)
+        width = len(self.maze[0])
+        x_start = -width // 2 * 22
+        y_start = height // 2 * 22
+        screenx = x_start + entity.x  * 22
+        screeny = y_start - entity.y * 22
+        entity.goto(screenx, screeny)
+    
+    def isOnTreasure(self, entity, treasX, treasY):
         x, y = entity.position()
         if(treasX == x and treasY == y):
             return True
         return False
-
-def changeTreasurePosition(treasure, maze):
-    posx = treasure.x
-    posy = treasure.y
-    newx, newy = posx, posy
-
-    while (posx, posy) == (newx, newy):
-        newx, newy = getRandomPosition(maze)
     
-    treasure.x, treasure.y = newx, newy
+    def changeTreasurePosition(self):
 
-    newx = -210 + newx * 22
-    newy = 210 - newy * 22
-    treasure.goto(newx, newy)
+        newx, newy = self.treasure.x, self.treasure.y
 
-    #window.ontimer(lambda: changeTreasurePosition(treasure, maze), 15000)
-
-mazes = imtoar.convert_image_to_array(5)
-selected_maze = mazes[0]
-maze_walls = mgen.get_maze_walls(selected_maze)
-window = mgen.generate_maze(selected_maze)
-
-path_squares = PathSquare()
-
-player = Player()
-oppo = Opponent()
-treasure = Treasure()
-
-placeEntity(selected_maze, oppo)
-placeEntity(selected_maze, player)
-placeEntity(selected_maze, treasure)
-
-window.listen()
-window.onkey(player.move_up, "Up")
-window.onkey(player.move_down, "Down")
-window.onkey(player.move_left, "Left")
-window.onkey(player.move_right, "Right")
-
-moveOpponent(selected_maze, oppo, treasure)
-
-path = pf.bfs(selected_maze, (oppo.y, oppo.x), (treasure.y, treasure.x))
-print(oppo.x, oppo.y)
-print(treasure.x, treasure.y)
-print(path)
-
-if path:
-    draw_path(path, len(selected_maze), len(selected_maze[0]))
-
-while True:
-    
-    treasX, treasY = treasure.position()
-
-    if(isOnTreasure(player, treasX, treasY)):
-        print("Player Won")
-        break
-    elif isOnTreasure(oppo, treasX, treasY):
-        print("Opponent Won")
-        break
+        while (self.treasure.x, self.treasure.y) == (newx, newy):
+            newx, newy = self.getRandomPosition()
         
-    window.update()
+        self.treasure.x, self.treasure.y = newx, newy
 
-window.update()
-turtle.done()
+        newx = -210 + newx * 22
+        newy = 210 - newy * 22
+        self.treasure.goto(newx, newy)
 
-#Instead of timer make it go by turns, every 15 turns the treasure changes place
+        #window.ontimer(lambda: changeTreasurePosition(treasure, maze), 15000)
+    
+    def makeMoves(self):
+        pass
+
+    def runGame(self):
+        maze_walls = mgen.get_maze_walls(self.maze) #Get maze walls
+        window = mgen.generate_maze(self.maze) #Draw maze
+
+        self.placeEntity(self.player)
+        self.placeEntity(self.opponent)
+        self.placeEntity(self.treasure)
+
+        self.opponent.calculateCheatPath(self.maze, (self.opponent.y, self.opponent.x), (self.treasure.y, self.treasure.x), "hard")
+
+        #if path:
+        #    mgen.draw_path(path, len(selected_maze), len(selected_maze[0]))
+
+        window.listen()
+        window.onkey(lambda: (self.player.make_move("up", maze_walls), self.opponent.moveAccordingToPath()), "Up")
+        window.onkey(lambda: (self.player.make_move("down", maze_walls), self.opponent.moveAccordingToPath()), "Down")
+        window.onkey(lambda: (self.player.make_move("left", maze_walls), self.opponent.moveAccordingToPath()), "Left")
+        window.onkey(lambda: (self.player.make_move("right", maze_walls), self.opponent.moveAccordingToPath()), "Right")
+
+        while True:
+            
+            treasX, treasY = self.treasure.position()
+
+            if(self.isOnTreasure(self.player, treasX, treasY)):
+                print("Player Won")
+                break
+            elif self.isOnTreasure(self.opponent, treasX, treasY):
+                print("Opponent Won")
+                break
+                
+            window.update()
+
+        window.update()
+        turtle.done()
+
+        #Instead of timer make it go by turns, every 15 turns the treasure changes place
+mazes = imtoar.convert_image_to_array(5)
+
+game = Game(mazes[0])
+
+game.runGame()

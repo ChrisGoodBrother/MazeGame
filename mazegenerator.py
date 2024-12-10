@@ -44,6 +44,14 @@ class WhiteSquare(turtle.Turtle): #White square
         self.penup()
         self.speed(0)
 
+class PathSquare(turtle.Turtle): #Path square
+    def __init__(self):
+        turtle.Turtle.__init__(self)
+        self.shape("square")
+        self.color("purple")
+        self.penup()
+        self.speed(0)
+
 def get_maze_walls(maze):
     maze_walls = []
     height = len(maze)
@@ -91,6 +99,19 @@ def draw_maze(maze):
                 white_squares.goto(posx, posy)
                 white_squares.stamp()
 
+def draw_path(path, maze_height, maze_width):
+
+    path_squares = PathSquare()
+
+    x_start = -maze_width // 2 * 22
+    y_start = maze_height // 2 * 22
+
+    for y, x in path:
+        posx = x_start + x * 22
+        posy = y_start - y * 22
+        path_squares.goto(posx, posy)
+        path_squares.stamp()
+        
 def generate_maze(maze):
 
     window = turtle.Screen()
