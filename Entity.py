@@ -21,23 +21,25 @@ class Entity(turtle.Turtle):
             y = self.ycor() + 22
             if (x, y) not in maze_walls:
                 self.goto(x, y)
+                self.y -= 1
         elif move == "down":
             x = self.xcor()
             y = self.ycor() - 22
             if (x, y) not in maze_walls:
                 self.goto(x, y)
-        elif move == "left":
+                self.y += 1
+        elif move == "left" and not (self.x == 0 and self.y == 1):
             x = self.xcor() - 22
             y = self.ycor()
             if (x, y) not in maze_walls:
                 self.goto(x, y)
+                self.x -= 1
         elif move == "right":
             x = self.xcor() + 22
             y = self.ycor()
             if (x, y) not in maze_walls:
                 self.goto(x, y)
-        else:
-            print("ERROR IN SELECTED MOVE")
+                self.x += 1
     
 class Player(Entity):
     def __init__(self):
@@ -50,8 +52,6 @@ class Opponent(Entity):
     
     def calculateCheatPath(self, maze, opponentCoordinates, treasureCoordinates, difficulty):
         if difficulty == "easy":
-            pass
-        elif difficulty == "medium":
             self.cheatPath = pf.dfs(maze, opponentCoordinates, treasureCoordinates)
         elif difficulty == "hard":
             self.cheatPath = pf.bfs(maze, opponentCoordinates, treasureCoordinates)
@@ -64,16 +64,12 @@ class Opponent(Entity):
             nextStep = self.cheatPath.pop(0)
             if nextStep == (self.y - 1, self.x):
                 self.make_move("up")
-                self.y -= 1
             elif nextStep == (self.y + 1, self.x):
                 self.make_move("down")
-                self.y += 1
             elif nextStep == (self.y, self.x - 1):
                 self.make_move("left")
-                self.x -= 1
             elif nextStep == (self.y, self.x + 1):
                 self.make_move("right")
-                self.x += 1
 
 class Treasure(turtle.Turtle):
     def __init__(self):

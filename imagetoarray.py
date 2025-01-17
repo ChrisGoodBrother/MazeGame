@@ -9,6 +9,7 @@ def convert_image_to_array(mazesAmount, mazes=[]):
         data = np.asarray(image)
         threshold = 128
         maze = (data < threshold).astype(int)
+        maze[1][0] = 0
         mazes.append(maze)
 
     return mazes
